@@ -1,0 +1,65 @@
+apply plugin : 'java'
+apply plugin: 'osgi'
+//apply plugin: 'biz.aQute.bnd'
+
+
+dependencies {
+    testCompile group: 'junit', name: 'junit', version:'4.8.1'
+    //compile group: 'org.osgi', name: 'org.osgi.compendium', version:'4.2.0'
+    //compile group: 'org.osgi', name: 'org.osgi.core', version:'4.2.0'
+    compile group: 'biz.aQute.bnd', name: 'biz.aQute.bndlib', version:'3.0.0'
+    compile group: 'org.slf4j', name: 'slf4j-api', version:'1.5.10'
+    compile group: 'org.apache.felix', name: 'org.apache.felix.scr.ant', version: '1.16.0'
+    //compile "org.apache.felix:org.apache.felix.scr.annotations:1.12.0"
+    compile group: 'javax.servlet', name: 'servlet-api', version:'2.5'
+    compile group: 'javax.jcr', name: 'jcr', version:'2.0'
+    compile group: 'org.apache.sling', name: 'org.apache.sling.api', version:'2.2.0'
+    compile group: 'org.apache.sling', name: 'org.apache.sling.jcr.api', version:'2.1.0'
+    compile group: 'org.osgi', name: 'org.osgi.service.component.annotations', version: '1.3.0'
+}
+
+task processSCRAnnotations(dependsOn: compileJava) << {
+    project.ant.properties.classes = project.sourceSets.main.output.classesDir
+    if (!project.ant.properties.classes) {
+        println "No Java/Groovy classes found"
+        return
+    }
+    project.ant.taskdef(resource: "scrtask.properties", classpath : project.configurations.compile.asPath)
+    project.ant.scr(srcdir: project.ant.properties.classes, destdir: project.ant.properties.classes, classpath: project.configurations.compile.asPath, scanClasses: true)
+}
+task packageSCRTask(dependsOn: processSCRAnnotations)<<{
+    def tree = project.fileTree(dir: new File(project.ant.properties.classes, '/OSGI-INF'), include: "**/*.xml", exclude: "**/metatype/**")
+    def serviceComponents = ""
+    if (tree.isEmpty()) {
+        println "No SCR Annotations found"
+        project.extensions.add("serviceComponents", serviceComponents)
+        return
+    }
+    tree.each { File file ->
+        def index = file.path.indexOf("OSGI-INF")
+        serviceComponents += file.path.substring(index).replace("\\", "/") + ", "
+    }
+    serviceComponents = serviceComponents.substring(0, serviceComponents.length() - 2)//remove final ", "
+    project.tasks.getByName('jar').manifest.instruction('Service-Component', serviceComponents)
+    //project.extensions.add("serviceComponents", serviceComponents)
+}
+/*
+configurations{
+    provided
+}
+sourceSets.main.compileClasspath += configurations.provided
+*/
+
+jar.dependsOn(packageSCRTask)
+
+jar {
+    manifest { // the manifest of the default jar is of type OsgiManifest
+        //instruction "Service-Component", project.extensions.getByName("serviceComponents") as String
+        name = 'My maven Project Bundle'
+        instruction 'Bundle-Vendor', 'JT1'
+        instruction 'Bundle-Description', 'AEM Multimodule project for My Gradle Project.'
+        //instruction 'Service-Component', 'OSGI-INF/**'
+        instruction 'Import-Package', '*'
+    }
+    //include '*.xml'
+}

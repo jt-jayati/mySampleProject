@@ -1,0 +1,5 @@
+
+description = 'My maven Project Package'
+dependencies {
+  compile project(':mymvnproject-bundle')
+}

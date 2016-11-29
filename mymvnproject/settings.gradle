@@ -1,0 +1,6 @@
+rootProject.name = 'mymvnproject'
+include ':mymvnproject-bundle'
+include ':mymvnproject-content'
+
+project(':mymvnproject-bundle').projectDir = "$rootDir/bundle" as File
+project(':mymvnproject-content').projectDir = "$rootDir/content" as File

@@ -1,0 +1,55 @@
+apply plugin : 'groovy'
+apply plugin : 'osgi'
+apply plugin : 'scr'
+apply plugin : 'bundletasks'
+
+
+dependencies {
+    testCompile group: 'junit', name: 'junit', version:'4.8.1'
+    compile group: 'biz.aQute.bnd', name: 'biz.aQute.bndlib', version:'3.0.0'
+    compile group: 'org.slf4j', name: 'slf4j-api', version:'1.5.10'
+    compile group: 'org.apache.felix', name: 'org.apache.felix.scr.ant', version: '1.16.0'
+    compile group: 'javax.servlet', name: 'servlet-api', version:'2.5'
+    compile group: 'javax.jcr', name: 'jcr', version:'2.0'
+    compile group: 'org.apache.sling', name: 'org.apache.sling.api', version:'2.2.0'
+    compile group: 'org.apache.sling', name: 'org.apache.sling.jcr.api', version:'2.1.0'
+}
+
+
+jar {
+    manifest { // the manifest of the default jar is of type OsgiManifest
+        name = 'My maven Project Bundle'
+        instruction 'Bundle-Vendor', 'JT'
+        instruction 'Bundle-Description', 'Maven Multimodule project for My maven Project.'
+        //instruction 'Service-Component', 'OSGI-INF/**'
+        instruction 'Import-Package', '*'
+    }
+}
+
+task task2{
+    println project.jar.manifest.symbolicName
+}
+/*
+
+jar.doFirst {
+    manifest {
+        //version = "1.0.0.SNAPSHOT"
+        attributes(
+                "Service-Component": project.extensions.getByName("serviceComponents") as String, //Set by scr plugin
+                "Bundle-Vendor": "jt",
+                "Bundle-Description": "AEM Multimodule project for My Gradle Project.",
+                "Bundle-Version": "1.0.0.SNAPSHOT",
+                "Implementation-Version":"1.0.0.SNAPSHOT",
+                "Implementation-Vendor": "jt",
+                "Bundle-SymbolicName": "com.jt.mymvnproject-bundle",
+                "Bundle-Name": "com.jt.mymvnproject-bundle"
+
+        )
+        instruction 'Import-Package', '*'
+
+        //  instruction 'Export-Package', "*,org.apache.http.client.methods.HttpUriRequest,org.apache.http,org.apache.http.auth,org.apache.http.client,org.apache.http.client.entity,org.apache.http.client.methods,org.apache.http.client.params ,org.apache.http.conn,org.apache.http.conn.scheme,org.apache.http.conn.ssl,org.apache.http.entity,org.apache.http.entity.mime,org.apache.http.entity.mime.content,org.apache.http.impl.client,org.apache.http.impl.conn,org.apache.http.impl.conn.tsccm,org.apache.http.message,org.apache.http.params,org.apache.http.protocol,org.apache.http.util"
+        instruction 'Service-Component', 'OSGI-INF/**'
+        // instruction 'Embed-Dependency','httpclient,org.apache.servicemix.bundles.solr-solrj'
+    }
+}
+ */
