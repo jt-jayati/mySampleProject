@@ -11,19 +11,27 @@ class BundleTasksPlugin implements Plugin<Project>{
 
     @Override
     void apply(Project project) {
+        final path = AemPluginConstants.getBUNDLE_CONSOLE_PATH()
 
-        def server = "localhost"
-        def port = "4502"
-        def username = "admin"
-        def password = "admin"
-        final path = "/system/console/bundles/"
-        final curlRequestStr = "curl -u " + username+":"+password + " -F action=stop http://" + server+":"+port+path + project.jar.manifest.symbolicName
-        Task uploadBundleTask = project.task([group: "CQ Plugins", dependsOn: "uninstallBundleTask"],'uploadBundleTask')<<{}
-        Task startBundleTask = project.task([group: "CQ Plugins", dependsOn: "installBundleTask"],'startBundleTask')<<{}
-        Task stopBundleTask = project.task([group: "CQ Plugins"],'stopBundleTask')<<{}
-        Task refreshBundlesTask = project.task([group: "CQ Plugins", dependsOn: "startBundleTask"],'refreshBundlesTask')<<{}
-        Task installBundleTask = project.task([group: "CQ Plugins", dependsOn: "uploadBundleTask"],'installBundleTask')<<{}
-        Task uninstallBundleTask = project.task([group: "CQ Plugins", dependsOn: "stopBundleTask"],'uninstallBundleTask')<<{}
+        Task updateBundleTask = project.task([group: "CQ Plugins", dependsOn: "uninstallBundleTask"],'uploadBundleTask')<<{
+            AemPluginUtil.sendCurlRequest(path,project.jar.manifest.symbolicName,"update",);
+        }
+        Task startBundleTask = project.task([group: "CQ Plugins", dependsOn: "installBundleTask"],'startBundleTask')<<{
+            AemPluginUtil.sendCurlRequest(path,project.jar.manifest.symbolicName,'start')
+        }
+        Task stopBundleTask = project.task([group: "CQ Plugins"],'stopBundleTask')<<{
+            AemPluginUtil.sendCurlRequest(path,project.jar.manifest.symbolicName,'stop')
+        }
+        Task refreshBundlesTask = project.task([group: "CQ Plugins", dependsOn: "startBundleTask"],'refreshBundlesTask')<<{
+            AemPluginUtil.sendCurlRequest(path,project.jar.manifest.symbolicName,'refresh')
+        }
+        Task installBundleTask = project.task([group: "CQ Plugins", dependsOn: "uploadBundleTask"],'installBundleTask')<<{
+            AemPluginUtil.sendCurlRequest(path,project.jar.manifest.symbolicName,'install -F bundlestart=start -F bundlestartlevel=20 -F bundlefile=/path/to/jar/file.jar ')
+        }
+        Task uninstallBundleTask = project.task([group: "CQ Plugins", dependsOn: "stopBundleTask"],'uninstallBundleTask')<<{
+            AemPluginUtil.sendCurlRequest(path,project.jar.manifest.symbolicName,'uninstall')
+        }
+
         Task dummytask = project.task([group: "CQ Plugins"],"dummyTask")<<{
             println curlRequestStr
             println curlRequestStr.execute()

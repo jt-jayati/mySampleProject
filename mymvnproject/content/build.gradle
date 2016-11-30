@@ -1,3 +1,5 @@
+apply plugin : 'packageTask'
+apply plugin : 'uploadandinstall'
 
 description = 'My maven Project Package'
 dependencies {
