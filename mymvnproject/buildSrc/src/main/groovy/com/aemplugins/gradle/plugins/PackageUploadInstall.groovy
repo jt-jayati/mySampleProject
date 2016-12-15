@@ -12,8 +12,7 @@ class PackageUploadInstall implements Plugin<Project> {
     @Override
     void apply(Project project) {
 
-        final path = AemPluginConstants.getPACKAGE_MANAGER_PATH()
-        Task uploadPackageTask = project.task([group: "CQ Plugins"],'uploadPackageTask'){
+        Task uploadPackageTask = project.task([group: "CQ Plugins",dependsOn: "createPackage"],'uploadPackageTask'){
             AemPluginUtil.installPackageViaCurl(project.tasks.findByName("createPackage").archivePath.toString())
         }
     }
