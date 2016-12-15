@@ -1,7 +1,10 @@
+description = 'My maven Project Package'
+
+println project.archivesBaseName
+project.ext {
+   // installPath = "jcr_root/apps/mymvnproject/install"
+}
+
 apply plugin : 'packageTask'
 apply plugin : 'uploadandinstall'
 
-description = 'My maven Project Package'
-dependencies {
-  compile project(':mymvnproject-bundle')
-}
