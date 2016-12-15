@@ -14,7 +14,7 @@ class PackageProjectTask implements Plugin<Project> {
     void apply(Project project) {
 
         String defaultInstallPath = "jcr_root/apps/"+project.archivesBaseName-"-content"+"/install"
-        //Collection<Project> osgiProjects = project.parent.childProjects.findAll {it.plugins.findPlugin('osgi')}
+        def osgiModules = project.parent.childProjects.findAll {it.value.plugins.findPlugin('osgi')}
 
         // To do  add bundles to filter.xml
         Task addBundlesToFilterXml = project.task([group: "CQ Plugins"],"addBundlesToFilterXml"){
@@ -25,9 +25,11 @@ class PackageProjectTask implements Plugin<Project> {
         Task createPackage =project.task([group: "CQ Plugins", type: Zip, dependsOn: "addBundlesToFilterXml"],"createPackage"){
                 from 'src/main/content'
             // To docopy task for bundles into install folder
-                from(project.tasks.jar,{
-                        into project.ext.has("installPath")? project.ext.installPath : defaultInstallPath
-        })
+                osgiModules.each { osgiModule ->
+                  from( osgiModule.value.tasks.jar,{
+                        into project.ext.has("installPath")? project.ext.get("installPath") : defaultInstallPath
+                    })
+                }
             }
 
         project.tasks.build.dependsOn += createPackage

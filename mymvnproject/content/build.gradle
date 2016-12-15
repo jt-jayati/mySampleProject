@@ -1,8 +1,7 @@
 description = 'My maven Project Package'
 
-println project.archivesBaseName
 project.ext {
-   // installPath = "jcr_root/apps/mymvnproject/install"
+    installPath = "jcr_root/apps/mymvnproject/install"
 }
 
 apply plugin : 'packageTask'
