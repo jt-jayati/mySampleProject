@@ -18,13 +18,13 @@ class PackageProjectTask implements Plugin<Project> {
 
         // To do  add bundles to filter.xml
         Task addBundlesToFilterXml = project.task([group: "CQ Plugins"],"addBundlesToFilterXml"){
-
+            // TO DO in case apps folder name needs to be different
         }
 
-        // To do copy task for jcr_root content
         Task createPackage =project.task([group: "CQ Plugins", type: Zip, dependsOn: "addBundlesToFilterXml"],"createPackage"){
+            // copy task for jcr_root content
                 from 'src/main/content'
-            // To docopy task for bundles into install folder
+            // Tcopy task for bundles into install folder
                 osgiModules.each { osgiModule ->
                   from( osgiModule.value.tasks.jar,{
                         into project.ext.has("installPath")? project.ext.get("installPath") : defaultInstallPath

@@ -3,7 +3,5 @@ description = 'My maven Project Package'
 project.ext {
     installPath = "jcr_root/apps/mymvnproject/install"
 }
-
 apply plugin : 'packageTask'
 apply plugin : 'uploadandinstall'
-
